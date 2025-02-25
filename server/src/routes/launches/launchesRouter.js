@@ -1,8 +1,11 @@
 const express = require("express");
-const { httpGetAllLaunches } = require("./launchesController");
+const {
+  httpGetAllLaunches,
+  httpCreateNewLaunch,
+} = require("./launchesController");
 
 const launchesRouter = express.Router();
 
-launchesRouter.get("/launches", httpGetAllLaunches);
+launchesRouter.get("/", httpGetAllLaunches).post("/", httpCreateNewLaunch);
 
 module.exports = launchesRouter;
