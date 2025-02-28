@@ -16,8 +16,10 @@ const launch = {
 
 saveLaunch(launch);
 
-function existsLaunchWithId(launchId) {
-  return launches.has(launchId);
+async function existsLaunchWithId(launchId) {
+  const existLaunch = await launches.findOne({ flightNumber: launchId });
+
+  return existLaunch;
 }
 
 async function getLatestFlightNumber() {
@@ -43,7 +45,8 @@ async function saveLaunch(launch) {
     throw new Error("No matching planet found");
   }
 
-  await launches.updateOne(
+  // more secure way with findOneAndUpdate instead of updateOne, because will only return the properties that we set in our update
+  await launches.findOneAndUpdate(
     {
       flightNumber: launch.flightNumber,
     },
@@ -67,12 +70,13 @@ async function scheduleNewLaunch(launch) {
   await saveLaunch(newLaunch);
 }
 
-function abortLaunchById(launchId) {
-  const aborted = launches.get(launchId);
-  aborted.upcoming = false;
-  aborted.success = false;
+async function abortLaunchById(launchId) {
+  const aborted = await launches.updateOne(
+    { flightNumber: launchId },
+    { upcoming: false, success: false }
+  );
 
-  return aborted;
+  return aborted.ok === 1 && aborted.nModified === 1;
 }
 
 module.exports = {

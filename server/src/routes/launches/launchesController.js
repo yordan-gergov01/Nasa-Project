@@ -34,17 +34,27 @@ async function httpCreateNewLaunch(req, res) {
   return res.status(201).json(launch);
 }
 
-function httpAbortLaunch(req, res) {
+async function httpAbortLaunch(req, res) {
   const id = Number(req.params.id);
 
-  if (!existsLaunchWithId(id)) {
+  const existLaunch = await existsLaunchWithId(id);
+
+  if (!existLaunch) {
     return res.status(400).json({
       error: "Launch not found",
     });
   }
 
-  const aborted = abortLaunchById(id);
-  return res.status(200).json(aborted);
+  const aborted = await abortLaunchById(id);
+
+  if (!aborted) {
+    return res.status(400).json({
+      error: "Launch not aborted",
+    });
+  }
+  return res.status(200).json({
+    ok: true,
+  });
 }
 
 module.exports = {
