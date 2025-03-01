@@ -1,4 +1,5 @@
 const http = require("http");
+require("dotenv").config();
 const mongoose = require("mongoose");
 const app = require("./app");
 
@@ -7,8 +8,7 @@ const { loadLaunchData } = require("./models/launchesModel");
 
 const PORT = process.env.PORT || 8000;
 
-const MONGO_URL =
-  "mongodb+srv://danigergov:ZXV1FNTLMuTdWaDf@nasacluster.h1hau.mongodb.net/?retryWrites=true&w=majority&appName=NASACluster";
+const MONGO_URL = process.env.MONGO_URL;
 
 const server = http.createServer(app);
 
