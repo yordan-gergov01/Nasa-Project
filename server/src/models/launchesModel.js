@@ -65,7 +65,7 @@ async function loadLaunchData() {
     mission: "FalconSat",
   });
 
-  if (!firstLaunch) {
+  if (firstLaunch) {
     console.log("Launch data already loaded");
   } else {
     await populateLaunches();
