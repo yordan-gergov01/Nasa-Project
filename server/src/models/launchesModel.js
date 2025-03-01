@@ -1,20 +1,67 @@
+const axios = require("axios");
+
 const launches = require("./launchesMongo");
 const planets = require("./planetsMongo");
+const { query } = require("express");
 
 const DEFAULT_FLIGHT_NUMBER = 100;
 
 const launch = {
-  flightNumber: 100,
-  mission: "Kepler Exploration X",
-  rocket: "Explorer IS1",
-  launchDate: new Date("December 27, 2030"),
-  target: "Kepler-442 b",
-  customers: ["ZTM", "NASA"],
-  upcoming: true,
-  success: true,
+  flightNumber: 100, // flight_number (in api request)
+  mission: "Kepler Exploration X", // name (in api request)
+  rocket: "Explorer IS1", // rocket.name (in api request)
+  launchDate: new Date("December 27, 2030"), // date_local (in api request)
+  target: "Kepler-442 b", // not applicable
+  customers: ["ZTM", "NASA"], // payloadn.customers for each payload (in api request)
+  upcoming: true, // upcoming (in api request)
+  success: true, // success (in api request)
 };
 
 saveLaunch(launch);
+
+const SPACEX_API_URL = "https://api.spacexdata.com/v5/launches/query";
+
+async function loadLaunchData() {
+  const response = await axios.post(SPACEX_API_URL, {
+    query: {},
+    options: {
+      populate: [
+        {
+          path: "rocket",
+          select: {
+            name: 1,
+          },
+        },
+        {
+          path: "payloads",
+          select: {
+            customers: 1,
+          },
+        },
+      ],
+    },
+  });
+
+  const launchDocs = response.data.docs;
+  launchDocs.forEach((launchDoc) => {
+    const payloads = launchDoc["payloads"];
+    const customers = payloads.flatMap((payload) => {
+      return payload["customers"];
+    });
+
+    const launch = {
+      flightNumber: launchDoc["flight_number"],
+      mission: launchDoc["name"],
+      rocket: launchDoc["rocket"]["name"],
+      launchDate: launchDoc["data_local"],
+      upcoming: launchDoc["upcoming"],
+      success: launchDoc["success"],
+      customers,
+    };
+
+    console.log(`${launch.flightNumber} ${launch.mission}`);
+  });
+}
 
 async function existsLaunchWithId(launchId) {
   const existLaunch = await launches.findOne({ flightNumber: launchId });
@@ -84,4 +131,5 @@ module.exports = {
   scheduleNewLaunch,
   existsLaunchWithId,
   abortLaunchById,
+  loadLaunchData,
 };
