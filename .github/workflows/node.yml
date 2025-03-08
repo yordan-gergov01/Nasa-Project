@@ -4,14 +4,24 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Use Node.js version 20
         uses: actions/setup-node@v3
         with:
           node-version: "20"
-      - run: npm install
-      - run: npm run build --prefix client
+
+      - name: Install server dependencies
+        run: cd server && npm install
+
+      - name: Install client dependencies
+        run: cd client && npm install
+
+      - name: Build client
+        run: npm run build --prefix client
