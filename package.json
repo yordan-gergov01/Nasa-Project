@@ -7,8 +7,9 @@
     "server": "cd server && nodemon server.js",
     "client": "cd client && npm start",
     "watch": "concurrently \"npm run server\" \"npm run client\"",
-    "install": "npm run install-server && npm run install-client",
-    "deploy": "cd client && npm run build && cd .. && cd server && npm start"
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "deploy": "npm run build --prefix client && npm start --prefix server"
   },
   "keywords": [],
   "author": "",
